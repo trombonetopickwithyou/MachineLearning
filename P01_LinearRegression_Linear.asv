@@ -1,0 +1,18 @@
+close all; clear; clc;
+
+load carbig.mat
+scatter(Weight, Horsepower);
+
+
+
+
+
+
+%% Closed form
+%W = solution (matrix)
+%
+
+%W = ( (X')*(X) )^(-1) * (X') * t;
+
+%% Gradient descent
+%gradient = 2*(W')*(X')*X - 2*(t')*X;
