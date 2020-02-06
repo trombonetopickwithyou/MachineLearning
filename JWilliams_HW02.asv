@@ -1,0 +1,42 @@
+close all; clear; clc;
+
+%% Generate training set
+seed = 1;
+
+rng(seed);
+X_train = rand(1,10);
+
+normal_dist_train = normrnd(0,0.3,[1 10]);
+t_train(:) = sin(2.*pi.*X_train(:)) + normal_dist_train(:);
+
+scatter(X_train,t_train);
+hold on;
+%% Generate test set
+X_test = rand(1,100);
+
+normal_dist_test = normrnd(0,0.3,[1 100]);
+t_test(:) = sin(2.*pi.*X_test(:)) + normal_dist_test(:);
+
+scatter(X_test,t_test);
+
+%% find line of best fit using linear regression with non-linear models (with training set)
+
+M=3; %degree of polynomial
+
+%construc
+for N=1:10  %rows (10 datapoints)
+    for i=1:(M+1)   %columns (M+1 columns)
+        phi(N,i) = X_train(N).^(i-1);
+    end
+end
+
+%analytical solution
+W = inv(phi'*phi)*phi'*t_train';
+
+%plot solution
+x=0:0.01:1;
+plot(x,polyval(flip(W),x));
+
+
+
+
