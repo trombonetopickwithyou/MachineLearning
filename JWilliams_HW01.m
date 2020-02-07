@@ -59,7 +59,7 @@ W = [0.05 0.05];		%guess initial W
 rho = 0.0001;			%learning rate
 
 %gradient descent algorithm
-for index = 1:1000
+for index = 1:10000
 	gradient = 2*(W)*((X')*X) - 2*(t')*X;
 	W = W - rho*gradient;
 end
