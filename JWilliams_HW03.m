@@ -10,3 +10,5 @@ rng(seed);
 L = 100;
 N = 25;
 X = rand(N,1);
+epsilon = normrnd(0,0.3,[1 N]);
+t(:) = sin(2.*pi.*X(:)) + epsilon(:);
