@@ -5,34 +5,37 @@
 close all; clear; clc;
 
 seed = 0;
+
 %% Generate Dataset
 
 rng(seed);
+
 L = 100;
 N = 25;
-
-X = rand(1,N);
+<<<<<<< HEAD
+X = rand(1,N);		%uniform distribution U(0,1)
+>>>>>>> 37cc56b8b222fc4494091fdb705023c221d90ed2
 
 epsilon = normrnd(0,0.3,[1 N]);
 t(:) = sin(2.*pi.*X(:)) + epsilon(:);
 
-lambda = 0;%:0.01:7;  %regularization parameter
-
+<<<<<<< HEAD
 %% Create Gaussian Basis Function
 %phi_j(x) = exp( -(x-u_j).^2/(2s^2) )
 
-mu = 0.5;
-s=0.1;
+lambda = 0;
 
-for i=1:N
-    phi(i,:)= [1,exp( (-(X(i)-mu).^2)./(2.*s.^2) )];
-end
+mu = 0.5;
+s = 0.1;
+
+phi = [ones(1,N); exp(-(X-mu).^2/(2*s.^2))]';
+>>>>>>> 37cc56b8b222fc4494091fdb705023c221d90ed2
 
 %compute closed-form analytical solution
 W = (phi'*phi + lambda*eye(2))\phi'*t';
 
-y=W(1)*X + W(2);
+<<<<<<< HEAD
+y = W'.*phi';
 
-scatter(X,t);
-hold on;
-plot(X,y);
+scatter(X,y);
+>>>>>>> 37cc56b8b222fc4494091fdb705023c221d90ed2
