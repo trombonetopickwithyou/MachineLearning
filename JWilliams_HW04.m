@@ -1,7 +1,7 @@
 %Joshua Williams
 %Machine Learning HW04
 %Test code with mnist handwriting data
-%Base code uses lawrenceglewis' code
+%Base code uses lawrenceglewis' image input code
 
 close all; clear; clc;
 
@@ -13,48 +13,62 @@ close all; clear; clc;
 X = reshape(double(imgs), [784 60000])';
 t = labels;
 
-[N,~] = size(X);
-% add column of ones to X
-X = [ones(N,1),X];
-
-[N,m] = size(X);
-
 % normalize data
 X = X/255;
 
+% add column of ones to X (call this the design matrix "phi")
+phi = [ones(60000,1),X];
+
+[N,m] = size(phi);
+
 %% ML stuff
-rho = 0.0000001;
+rho = 0.0001;
 
-% first let's train with just the 0's!
-val = 0;    % if it's the value we're training for, put a 10 there, otherwise put a zero
+% first let's train with just the digit 0
+val = 0;    
 
+% if it's the value we're training for, put a 1 there, otherwise put a zero
 t(t==val) = 10;
 t(t~=10) = 0;
 t(t==10) = 1;
 
 % fill W vector with random W's [ W1 W2 W3 ... ]
-W = zeros(1,m);
-% map X inputs to phi (just using X at the moment)
+W = 0.05*ones(1,m);
 
 % use gradient descent to find actual W's
-for k=1:200
-    %(prediction(X,W) should be values between 1 and 0 (because sigmoid function))
-   
-    pred = prediction(W,X');    
-    gradient = (pred - t')*X;
-    gradient = sum(gradient);
+for iter=1:100
     
-    disp(gradient);
-    W = W - rho.*gradient;
+    %prediction(X,W) should be values between 1 and 0 (because sigmoid function) 
     
+    %convert this stuff to sum() function
+    gradient = 0;
+    for i=1:N   %summing per sample at the moment
+        
+        temp_pred = sigmoid(W*phi(i,:)');
+        temp_difference = temp_pred - t(i);
+        
+        gradient = gradient + (temp_difference).*phi(i,:);
+    end
+    
+    %update W using found gradient
+    W = W - rho*gradient;
+    
+    %console debug
+    disp(iter);
 end
+
 % compute answer using sigmoid function
+y = sigmoid(W*phi');
 
-y = prediction(W,X');
+% y(y>0.7) = 1;
+% y(y<1) = 0;
 
-
-
-
+for i=1:N
+   if y(i) > 0.95
+       displayMNISTimage(imgs,labels,i,y);
+       pause;
+   end   
+end
 
 %% functions
 % read in mnist data
@@ -120,18 +134,16 @@ fclose(fid_labels);
 
 end
 
-%for debug
-function displayMNISTimage(imgs,labels,k)
+% for debug
+function displayMNISTimage(imgs,labels,k,y)
     imshow(imgs(:,:,k));
-    title(num2str(labels(k)));
+    title({
+        [num2str(y(k)*100) '% confident it''s a zero']
+        ['Actual: ' num2str(labels(k))]
+        });
 end
 
 % logistic sigmoid function
 function out = sigmoid(x)
      out = 1./(1+exp(-x));
-end
-
-% hypothesis function
-function out = prediction(W,X)
-     out = sigmoid(W*X);
 end
