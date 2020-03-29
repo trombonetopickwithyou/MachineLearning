@@ -2,72 +2,88 @@
 %Machine Learning HW04
 %Test code with mnist handwriting data
 %Base code uses lawrenceglewis' image input code
-
 close all; clear; clc;
+
+%% read in data
 
 % read in training set of mnist data (28x28 x 60,000)
 [imgs, labels] = mnist_parse('train-images.idx3-ubyte', 'train-labels.idx1-ubyte');
 %displayMNISTimage(imgs,labels,1);
 
+[num_rows,num_cols,N] = size(imgs);
+
 % unroll each greyscale image so X is 784 x 60,000 (transposed)
-X = reshape(double(imgs), [784 60000])';
+X = reshape(double(imgs), [num_rows.*num_cols N])';
 t = labels;
+t(t==0) = 10; % make class zero class 10 so indexing doesn't get weird
 
 % normalize data
-X = X/255;
+maxval = max(X(:));
+X = X/maxval;
 
 % add column of ones to X (call this the design matrix "phi")
-phi = [ones(60000,1),X];
+phi = [ones(N,1),X];
 
-[N,m] = size(phi);
+% extract information from data for training
+[N, num_features] = size(phi);
+num_classes = max(t);
 
 %% ML stuff
 rho = 0.0001;
 
-% first let's train with just the digit 0
-val = 0;    
+%cap_t = one_hot_encode(t,10);
 
-% if it's the value we're training for, put a 1 there, otherwise put a zero
-t(t==val) = 10;
-t(t~=10) = 0;
-t(t==10) = 1;
-
-% fill W vector with random W's [ W1 W2 W3 ... ]
-W = 0.05*ones(1,m);
-
-% use gradient descent to find actual W's
-for iter=1:100
+for k = 1:10  % train each class
+    fprintf('Training class: %d\n', k);
     
-    %prediction(X,W) should be values between 1 and 0 (because sigmoid function) 
-    
-    %convert this stuff to sum() function
-    gradient = 0;
-    for i=1:N   %summing per sample at the moment
+    % if it's the value we're training for, put a 1 there, otherwise put a zero
+    t_temp = zeros(N,1);
+    t_temp(t==k) = 1;
+
+    % fill W vector with random W's [ W1 W2 W3 ... W_num_features]
+    W = 0.05*ones(1,num_features);
+
+    % use gradient descent to find actual W's
+    old_cost = 1;
+    cost = 0;
+    iter = 0;
+    while (abs(old_cost - cost) > 0.0001) && (iter < 400)
+        old_cost = cost;
+        iter = iter + 1;
+        fprintf('\tIteration: %d\n', iter);        
         
-        temp_pred = sigmoid(W*phi(i,:)');
-        temp_difference = temp_pred - t(i);
+        %find gradient
+        gradient = sum((sigmoid(W*phi')' - t_temp).*phi);
         
-        gradient = gradient + (temp_difference).*phi(i,:);
+        %update W using found gradient
+        W = W - rho*gradient;
+        
+        pred = sigmoid(W*phi')'; 
+        cost = mean( ( -t_temp .* log10(pred) ) - ( (1 - t_temp).*log10(1-pred) ) );
+        
+        fprintf('\tcost: %d\n', cost);
+        
     end
-    
-    %update W using found gradient
-    W = W - rho*gradient;
-    
-    %console debug
-    disp(iter);
+
+    % compute answer using sigmoid function (put in column corresponding to class (k))
+    y(:,k) = sigmoid(W*phi');
+
 end
 
-% compute answer using sigmoid function
-y = sigmoid(W*phi');
-
-% y(y>0.7) = 1;
-% y(y<1) = 0;
-
+%display results (and calculate error)
+sz_y = size(y);
 for i=1:N
-   if y(i) > 0.95
-       displayMNISTimage(imgs,labels,i,y);
-       pause;
-   end   
+    
+    %at each sample (row), find which class (column) is the highest (Nxk)   
+    [maxVal,col] = max(y(i,:));
+    
+    certainty = maxVal.*100;
+    guess = mod(col,10);
+    
+    %display image, and corresponding guess
+    displayMNISTimage(imgs,labels,i,certainty,guess);
+    pause; 
+    
 end
 
 %% functions
@@ -135,15 +151,27 @@ fclose(fid_labels);
 end
 
 % for debug
-function displayMNISTimage(imgs,labels,k,y)
-    imshow(imgs(:,:,k));
+function displayMNISTimage(imgs,labels,k,certainty,guess)
+    imshow(imgs(:,:,k),'InitialMagnification','fit');
     title({
-        [num2str(y(k)*100) '% confident it''s a zero']
-        ['Actual: ' num2str(labels(k))]
+        [num2str(certainty) '% confident it''s a ' num2str(guess)]
+        ['Actually: ' num2str(labels(k))]
         });
 end
 
 % logistic sigmoid function
 function out = sigmoid(x)
      out = 1./(1+exp(-x));
+end
+
+function cap_t = one_hot_encode(t, N, num_classes)
+    % this function assumes the classes are labeled 1,2,3...N (i.e. class zero is labeled as "10")    
+    
+    cap_t = zeros(N,num_classes);
+    
+    for i = 1:N
+        cap_t(i,t(i)) = 1;
+        
+    end
+    
 end
