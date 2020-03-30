@@ -47,8 +47,9 @@ for k = 1:10  % train each class
     old_cost = 1;
     cost = 0;
     iter = 0;
-    while (abs(old_cost - cost) > 0.0001) && (iter < 400)
-        old_cost = cost;
+    %abs(old_cost - cost) > 1e-15)
+    while (iter < 400)
+        %old_cost = cost;
         iter = iter + 1;
         fprintf('\tIteration: %d\n', iter);        
         
@@ -58,10 +59,10 @@ for k = 1:10  % train each class
         %update W using found gradient
         W = W - rho*gradient;
         
-        pred = sigmoid(W*phi')'; 
-        cost = mean( ( -t_temp .* log10(pred) ) - ( (1 - t_temp).*log10(1-pred) ) );
+        %pred = sigmoid(W*phi')'; 
+        %cost = mean( ( -t_temp .* log10(pred) ) - ( (1 - t_temp).*log10(1-pred) ) );
         
-        fprintf('\tcost: %d\n', cost);
+        %fprintf('\tcost: %d\n', cost);
         
     end
 
@@ -71,21 +72,32 @@ for k = 1:10  % train each class
 end
 
 %display results (and calculate error)
-sz_y = size(y);
+num_success = 0;
+num_error = 0;
 for i=1:N
     
     %at each sample (row), find which class (column) is the highest (Nxk)   
-    [maxVal,col] = max(y(i,:));
-    
-    certainty = maxVal.*100;
+    [~,col] = max(y(i,:));
+    %certainty = maxVal.*100;
     guess = mod(col,10);
     
+    if guess == labels(i)
+        num_success = num_success + 1;
+    else
+        num_error = num_error + 1;
+    end
+    
     %display image, and corresponding guess
-    displayMNISTimage(imgs,labels,i,certainty,guess);
-    pause; 
+    %displayMNISTimage(imgs,labels,i,certainty,guess);
+    %pause; 
     
 end
 
+fprintf('Identified %d images\n',num_success);
+fprintf('Missed %d images\n',num_error);
+fprintf('Success rate: %% %f\n', (num_success./N).*100);
+
+    
 %% functions
 % read in mnist data
 function [images, labels] = mnist_parse(path_to_digits, path_to_labels)
