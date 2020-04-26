@@ -54,7 +54,7 @@ for k = 1:10  % train each class
         fprintf('\tIteration: %d\n', iter);        
         
         %find gradient
-        gradient = sum((sigmoid(W*phi')' - t_temp).*phi);
+        gradient = sum( (sigmoid(W*phi')' - t_temp).*phi);
         
         %update W using found gradient
         W = W - rho*gradient;
