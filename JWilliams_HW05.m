@@ -1,7 +1,16 @@
+%Joshua Williams
+%April 26, 2020
+%HW5: Feed Forward Neural Network
+%
+%NOTE: 
+%   I Apoligize. I did not have time to complete part (b) of this project.
+%   The following code completes part (a) (minus decision boundary plot).
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 close all; clear; clc;
 
 %% input parameters
-rng(0);
+rng('default');
 
 train_input = [-1, -1; 1, 1; -1, 1; 1, -1];
 train_t = [0; 0; 1; 1];
@@ -13,7 +22,7 @@ epochs = 3000;
 num_inputs = 2;
 num_hidden_units = 2;
 num_hidden_layers = 1;
-num_outputs = 1;    %implement later with two output classes?
+num_outputs = 1;    %need to implement later with two output classes
 
 %% ml stuff
 % initialize neural network object
@@ -29,6 +38,7 @@ ylabel('Error');
 
 divisor = 2; %for plotting
 for i = 1:epochs
+    
     network = nn_train(network, train_input, train_t, rho);
     
     % plot loss function at specific epochs
@@ -44,15 +54,17 @@ end
 
 %% output results
 
-fprintf('results:\n\n');
-fprintf('epochs: %d\n\n', epochs);
-fprintf('  input \tnetwork output\n');
+network = feedforward(train_input, network);
 
-for index=1:4
-    fprintf('%3d\t', train_input(index,:));
-    network = feedforward(train_input(index,:), network);
-    disp(network.output(index));
+fprintf('\nNetwork solution to xor problem: \n');
+fprintf('epochs: %d\n', epochs);
+fprintf(' input\t network output\n');
+for i=1:4
+    fprintf(' %d\t %d\t\t%f\n', train_input(i,1), train_input(i,2), network.output(i));
 end
+
+
+
 
 
 

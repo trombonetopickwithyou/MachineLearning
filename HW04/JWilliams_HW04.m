@@ -59,11 +59,6 @@ for k = 1:10  % train each class
         %update W using found gradient
         W = W - rho*gradient;
         
-        %pred = sigmoid(W*phi')'; 
-        %cost = mean( ( -t_temp .* log10(pred) ) - ( (1 - t_temp).*log10(1-pred) ) );
-        
-        %fprintf('\tcost: %d\n', cost);
-        
     end
 
     % compute answer using sigmoid function (put in column corresponding to class (k))
