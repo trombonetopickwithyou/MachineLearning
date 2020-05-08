@@ -3,7 +3,6 @@
 %HW5: Feed Forward Neural Network
 %
 %NOTE: 
-%   I Apoligize. I did not have time to complete part (b) of this project.
 %   The following code completes part (a) (minus decision boundary plot).
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
